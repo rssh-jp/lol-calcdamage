@@ -5,7 +5,7 @@ block content
   p Welcome to #{title}
 
   select(id="Test", name="name_test")
-    -for(var i=0; i<10; i++){
-        option(value="#{i}") Some value for #{i}
+    -for(var i=0; i<select_list.length; i++){
+        option(value="#{select_list[i]}") #{select_list[i].id} : #{select_list[i].name} : #{select_list[i].name_jp}
     -}
 

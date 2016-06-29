@@ -8,10 +8,28 @@ var async = require('async');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
+    var select_list = [];
     var task = [];
     task.push(function(next){
-        searchChampData(function(err){
-            next(err);
+        searchChampData(null, function(err, res){
+            if(err){
+                next(err);
+                return;
+            }
+            for(var key in res.data){
+                var val = res.data[key];
+                var data = {
+                    name : key,
+                    id : val.id,
+                    name_jp : val.name,
+                };
+                select_list.push(data);
+            }
+            select_list.sort(function(v1, v2){
+                return v1.id - v2.id;
+            });
+            console.log('select_list : ', select_list);
+            next(null);
         });
     });
 //    task.push(function(next){
@@ -20,7 +38,7 @@ router.get('/', function(req, res, next) {
 //        });
 //    });
     async.waterfall(task, function(error){
-        res.render('index', { title: 'LoL Damage Calculation' });
+        res.render('index', { title: 'LoL Damage Calculation', select_list : select_list, select_size : select_list.length });
     });
 });
 
@@ -99,15 +117,24 @@ var searchF2PChamp = function (callback){
         callback(null);
     });
 };
-var searchChampData = function (callback){
-    request('STATIC_DATA.CHAMPION', {get : {locale : 'ja_JP', champData : 'all', api_key : API_KEY}}, function(err, res){
+var searchChampData = function (id, callback){
+    var params = {
+        get : {
+            locale : 'ja_JP',
+            champData : 'info',
+            api_key : API_KEY,
+        },
+    };
+    if(id != null){
+        params['param'] = '1';
+    }
+    request('STATIC_DATA.CHAMPION', params, function(err, res){
         if(err){
-            callback(err);
+            callback(err, null);
             return;
         }
         var obj = JSON.parse(res);
-        console.log(obj);
-        callback(null);
+        callback(null, obj);
     });
 };
 
