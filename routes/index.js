@@ -10,12 +10,14 @@ var async = require('async');
 router.get('/', function(req, res, next) {
     var task = [];
     task.push(function(next){
-        requestTest();
-        next(null);
+        searchChampData(function(err){
+            next(err);
+        });
     });
     task.push(function(next){
-        requestTest2();
-        next(null);
+        searchF2PChamp(function(err){
+            next(err);
+        });
     });
     async.waterfall(task, function(error){
         res.render('index', { title: 'LoL Damage Calculation' });
@@ -23,22 +25,23 @@ router.get('/', function(req, res, next) {
 });
 
 var API_KEY = 'RGAPI-8344AE70-1B54-4223-839B-0EA9C88BC31C';
-//var API_KEY = 'https://jp.api.pvp.net/api/lol/jp/v1.2/champion/1?api_key=RGAPI-8344AE70-1B54-4223-839B-0EA9C88BC31C';
 
-var Const = {
-    PATH : {
-        CHAMP : '/api/lol/jp/v1.2/champion/',
-        CHAMP_STATS : '/api/lol/static-data/jp/v1.2/champion/',
+var URL = {
+    CHAMPION : {
+        HOST : 'jp.api.pvp.net',
+        PATH : {
+            FREE2PLAY : '/api/lol/jp/v1.2/champion/',
+        },
+    },
+    STATIC_DATA : {
+        HOST : 'global.api.pvp.net',
+        PATH : {
+            CHAMPION : '/api/lol/static-data/jp/v1.2/champion/',
+        },
     },
 };
-var Enum = {
-    PATH_TYPE : {
-        CHAMP : 'CHAMP',
-        CHAMP_STATS : 'CHAMP_STATS',
-    },
-};
 
-var getPath = function(type, params){
+var getURL = function(type_str, params){
     if(params == null){
         params = {};
     }
@@ -49,57 +52,60 @@ var getPath = function(type, params){
         get.push(str);
     }
     var get_str = get.join('&');
-    var ret = Const.PATH[type] + param_str + '?' + get_str;
+    var s = type_str.split('.');
+    var url = URL[s[0]];
+    var ret = {
+        host : url.HOST,
+        path : url.PATH[s[1]] + param_str + '?' + get_str,
+    };
     return ret;
 };
 
-var requestTest = function (){
-    var path = getPath(Enum.PATH_TYPE.CHAMP, {param : '1', get : {champData : 'stats', api_key : API_KEY}});
+var request = function(type_str, params, callback){
+    var ret = '';
+    var url = getURL(type_str, params);
     var options = {
-        hostname : 'jp.api.pvp.net',
+        hostname : url.host,
         method : 'GET',
-        path : path,
+        path : url.path,
     };
     var req = https.request(options, function(res){
-        var str = '';
         res.setEncoding('utf8');
         res.on('data', function(chunk){
-            str += chunk;
+            ret += chunk;
         });
         res.on('end', function(){
-            var obj = JSON.parse(str);
-            console.log(obj);
+            callback(null, ret);
         });
     });
     req.end();
     req.on('error', function(err){
-        console.log('error : ', err);
+        callback(err, null);
     });
 };
 
-var requestTest2 = function (){
-    var path = getPath(Enum.PATH_TYPE.CHAMP_STATS, {param : '1', get : {locale : 'ja_JP', champData : 'all', api_key : API_KEY}});
-    var options = {
-        hostname : 'global.api.pvp.net',
-        method : 'GET',
-        path : path,
-    };
-    console.log('path : ', path);
-    var req = https.request(options, function(res){
-        var str = '';
-        res.setEncoding('utf8');
-        res.on('data', function(chunk){
-            str += chunk;
-        });
-        res.on('end', function(){
-            var obj = JSON.parse(str);
-            console.log(obj);
-        });
-    });
-    req.end();
-    req.on('error', function(err){
-        console.log('error : ', err);
+var searchF2PChamp = function (callback){
+    request('CHAMPION.FREE2PLAY', {param : '1', get : {champData : 'stats', api_key : API_KEY}}, function(err, res){
+        if(err){
+            callback(err);
+            return;
+        }
+        var obj = JSON.parse(res);
+        console.log(obj);
+        callback(null);
     });
 };
+var searchChampData = function (callback){
+    request('STATIC_DATA.CHAMPION', {param : '1', get : {locale : 'ja_JP', champData : 'all', api_key : API_KEY}}, function(err, res){
+        if(err){
+            callback(err);
+            return;
+        }
+        var obj = JSON.parse(res);
+        console.log(obj);
+        callback(null);
+    });
+};
+
 
 module.exports = router;
