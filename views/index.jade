@@ -3,3 +3,9 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
+
+  select(id="Test", name="name_test")
+    -for(var i=0; i<10; i++){
+        option(value="#{i}") Some value for #{i}
+    -}
+

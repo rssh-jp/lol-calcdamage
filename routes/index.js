@@ -14,11 +14,11 @@ router.get('/', function(req, res, next) {
             next(err);
         });
     });
-    task.push(function(next){
-        searchF2PChamp(function(err){
-            next(err);
-        });
-    });
+//    task.push(function(next){
+//        searchF2PChamp(function(err){
+//            next(err);
+//        });
+//    });
     async.waterfall(task, function(error){
         res.render('index', { title: 'LoL Damage Calculation' });
     });
@@ -30,13 +30,13 @@ var URL = {
     CHAMPION : {
         HOST : 'jp.api.pvp.net',
         PATH : {
-            FREE2PLAY : '/api/lol/jp/v1.2/champion/',
+            FREE2PLAY : '/api/lol/jp/v1.2/champion',
         },
     },
     STATIC_DATA : {
         HOST : 'global.api.pvp.net',
         PATH : {
-            CHAMPION : '/api/lol/static-data/jp/v1.2/champion/',
+            CHAMPION : '/api/lol/static-data/jp/v1.2/champion',
         },
     },
 };
@@ -45,7 +45,10 @@ var getURL = function(type_str, params){
     if(params == null){
         params = {};
     }
-    var param_str = params.param;
+    var param_str = '';
+    if(params.param != null){
+        param_str = '/' + params.param;
+    }
     var get = [];
     for(var key in params.get){
         var str = key + '=' + params.get[key];
@@ -64,6 +67,7 @@ var getURL = function(type_str, params){
 var request = function(type_str, params, callback){
     var ret = '';
     var url = getURL(type_str, params);
+    console.log('path : ', url.path);
     var options = {
         hostname : url.host,
         method : 'GET',
@@ -85,7 +89,7 @@ var request = function(type_str, params, callback){
 };
 
 var searchF2PChamp = function (callback){
-    request('CHAMPION.FREE2PLAY', {param : '1', get : {champData : 'stats', api_key : API_KEY}}, function(err, res){
+    request('CHAMPION.FREE2PLAY', {get : {champData : 'stats', api_key : API_KEY}}, function(err, res){
         if(err){
             callback(err);
             return;
@@ -96,7 +100,7 @@ var searchF2PChamp = function (callback){
     });
 };
 var searchChampData = function (callback){
-    request('STATIC_DATA.CHAMPION', {param : '1', get : {locale : 'ja_JP', champData : 'all', api_key : API_KEY}}, function(err, res){
+    request('STATIC_DATA.CHAMPION', {get : {locale : 'ja_JP', champData : 'all', api_key : API_KEY}}, function(err, res){
         if(err){
             callback(err);
             return;
