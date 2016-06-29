@@ -72,13 +72,13 @@ router.get('/', function(req, res, next) {
             n(null);
         });
     });
-//    task.push(function(n){
-//        searchF2PChamp(function(err){
-//            n(err);
-//        });
-//    });
+    task.push(function(n){
+        searchChampAllData(202, function(err){
+            n(null);
+        });
+    });
     async.waterfall(task, function(error){
-        console.log('data : ', data.champ_stats);
+//        console.log('data : ', data.champ_stats);
         res.render('index', { title: 'LoL Damage Calculation', data : data });
     });
 });
@@ -103,7 +103,7 @@ var searchChampDetail = function(query, callback){
                 var hp = s.hp + (s.hpperlevel * lvoffset);
                 var mp = s.mp + (s.mpperlevel * lvoffset);
                 var cr = s.crit + (s.critperlevel * lvoffset);
-                var as = (1 + s.attackspeedoffset) + ((1 + s.attackspeedoffset) * (s.attackspeedperlevel * lvoffset) / 100);
+                var as = (0.625 + s.attackspeedoffset) + ((0.625 + s.attackspeedoffset) * (s.attackspeedperlevel * lvoffset) / 100);
                 var data = {
                     attackdamage : Math.floor(ad * 1000) / 1000,
                     armor        : Math.floor(ar * 1000) / 1000,
@@ -135,7 +135,7 @@ var searchChampDetail = function(query, callback){
                 var hp = s.hp + (s.hpperlevel * lvoffset);
                 var mp = s.mp + (s.mpperlevel * lvoffset);
                 var cr = s.crit + (s.critperlevel * lvoffset);
-                var as = (1 + s.attackspeedoffset) + ((1 + s.attackspeedoffset) * (s.attackspeedperlevel * lvoffset) / 100);
+                var as = (0.625 + s.attackspeedoffset) + ((0.625 + s.attackspeedoffset) * (s.attackspeedperlevel * lvoffset) / 100);
                 var data = {
                     attackdamage : Math.floor(ad * 1000) / 1000,
                     armor        : Math.floor(ar * 1000) / 1000,
@@ -215,6 +215,7 @@ var getURL = function(type_str, params){
 var request = function(type_str, params, callback){
     var ret = '';
     var url = getURL(type_str, params);
+    console.log('url : ', url);
     var options = {
         hostname : url.host,
         method : 'GET',
@@ -266,7 +267,7 @@ var searchChampDataMain = function(id, callback){
         callback(null, obj);
     });
 };
-var searchChampDetailData = function(id, callback){
+var searchChampDetailDataMain = function(id, callback){
     var params = {
         
         get : {
@@ -285,6 +286,70 @@ var searchChampDetailData = function(id, callback){
         }
         var obj = JSON.parse(res);
         callback(null, obj);
+    });
+};
+var searchChampAllData = function(id, callback){
+    var params = {
+        
+        get : {
+            locale : 'ja_JP',
+            champData : 'all',
+            api_key : API_KEY,
+        },
+    };
+    if(id != null){
+        params['param'] = id;
+    }
+    request('STATIC_DATA.CHAMPION', params, function(err, res){
+        if(err){
+            callback(err, null);
+            return;
+        }
+        var obj = JSON.parse(res);
+        console.log('obj : ', obj);
+        callback(null, obj);
+    });
+};
+var searchChampDetailData = function(id, callback){
+    var CACHE_NAME = 'CHAMP_DETAIL_DATA';
+    var CACHE_KEY = CACHE_NAME + id;
+    var ret = null;
+    var task = [];
+    // キャッシュから取得
+    task.push(function(next){
+        cache_data.get(CACHE_KEY, function(err, res){
+            if(err){
+                next(null);
+                return;
+            }
+            ret = res;
+            next(100);
+        });
+    });
+    // apiを使って取得
+    task.push(function(next){
+        searchChampDetailDataMain(id, function(err, res){
+            if(err){
+                next(err);
+                return;
+            }
+            ret = res;
+            next(null);
+        });
+    });
+    // キャッシュに登録
+    task.push(function(next){
+        cache_data.set(CACHE_KEY, ret, function(err){
+            next(err);
+        });
+    });
+    async.waterfall(task, function(error){
+        if(error){
+            if(error == 100){
+                error = null;
+            }
+        }
+        callback(error, ret);
     });
 };
 var searchChampData = function (id, callback){
