@@ -7,7 +7,10 @@ block content
     h1= title
     p Welcome to #{title}
 
-    a(href="/champion", target="", class="a") champion
+    div
+        a(href="/champion", target="", class="form") champion
+    div(class="form-group")
+        a(href="/summoner", target="", class="form") summoner
 
     form(method="GET", target="", class="form")
         div(class="form-group")
