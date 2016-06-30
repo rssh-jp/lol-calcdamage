@@ -1,11 +1,48 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+    h1= title
+    p Welcome to #{title}
 
-  select(id="Test", name="name_test")
-    -for(var i=0; i<select_list.length; i++){
-        option(value="#{select_list[i]}") #{select_list[i].id} : #{select_list[i].name} : #{select_list[i].name_jp}
-    -}
+    form(method="GET", target="")
+        ul
+            label 自分
+            select(id="Test", name="champ_1_id")
+                -for(var i=0; i<data.select_list.length; i++){
+                    -if(data.select_list[i].id == data.champ_1_id){
+                        option(selected="true" value="#{data.select_list[i].id}") #{data.select_list[i].id} : #{data.select_list[i].name} : #{data.select_list[i].name_jp}
+                    -}else{
+                        option(value="#{data.select_list[i].id}") #{data.select_list[i].id} : #{data.select_list[i].name} : #{data.select_list[i].name_jp}
+                    -}
+                -}
+            label レベル
+            select(id="Test", name="champ_1_lv")
+                -for(var i=0; i<18; i++){
+                    -if(i + 1 == data.champ_1_lv){
+                        option(selected="true" value="#{i + 1}") #{i + 1}
+                    -}else{
+                        option(value="#{i + 1}") #{i + 1}
+                    -}
+                -}
+        ul
+            label 相手
+            select(id="Test", name="champ_2_id")
+                -for(var i=0; i<data.select_list.length; i++){
+                    -if(data.select_list[i].id == data.champ_2_id){
+                        option(selected="true" value="#{data.select_list[i].id}") #{data.select_list[i].id} : #{data.select_list[i].name} : #{data.select_list[i].name_jp}
+                    -}else{
+                        option(value="#{data.select_list[i].id}") #{data.select_list[i].id} : #{data.select_list[i].name} : #{data.select_list[i].name_jp}
+                    -}
+                -}
+            label レベル
+            select(id="Test", name="champ_2_lv")
+                -for(var i=0; i<18; i++){
+                    -if(i + 1 == data.champ_2_lv){
+                        option(selected="true" value="#{i + 1}") #{i + 1}
+                    -}else{
+                        option(value="#{i + 1}") #{i + 1}
+                    -}
+                -}
+        ul
+            input(type="submit", value="選択")
 

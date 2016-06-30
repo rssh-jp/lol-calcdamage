@@ -8,41 +8,54 @@ var async = require('async');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    var select_list = [];
+    var data = {};
     var task = [];
-    task.push(function(next){
+    task.push(function(n){
+        console.log('req : ', req.query);
+        data.champ_1_id = req.query.champ_1_id != null ? req.query.champ_1_id : null;
+        data.champ_2_id = req.query.champ_2_id != null ? req.query.champ_2_id : null;
+        data.champ_1_lv = req.query.champ_1_lv != null ? req.query.champ_1_lv : null;
+        data.champ_2_lv = req.query.champ_2_lv != null ? req.query.champ_2_lv : null;
+        n(null);
+    });
+    task.push(function(n){
         searchChampData(null, function(err, res){
             if(err){
-                next(err);
+                n(err);
                 return;
             }
+            var select_list = [];
             for(var key in res.data){
                 var val = res.data[key];
-                var data = {
+                var d = {
                     name : key,
                     id : val.id,
                     name_jp : val.name,
                 };
-                select_list.push(data);
+                select_list.push(d);
             }
             select_list.sort(function(v1, v2){
                 return v1.id - v2.id;
             });
-            console.log('select_list : ', select_list);
-            next(null);
+            data.select_list = select_list;
+            n(null);
         });
     });
-//    task.push(function(next){
+//    task.push(function(n){
 //        searchF2PChamp(function(err){
-//            next(err);
+//            n(err);
 //        });
 //    });
     async.waterfall(task, function(error){
-        res.render('index', { title: 'LoL Damage Calculation', select_list : select_list, select_size : select_list.length });
+        res.render('index', { title: 'LoL Damage Calculation', data : data });
     });
 });
 
 var API_KEY = 'RGAPI-8344AE70-1B54-4223-839B-0EA9C88BC31C';
+
+var ping = function(){
+    console.log('AAAAAAAAAAAAAAAAAA');
+};
 
 var URL = {
     CHAMPION : {
@@ -85,7 +98,6 @@ var getURL = function(type_str, params){
 var request = function(type_str, params, callback){
     var ret = '';
     var url = getURL(type_str, params);
-    console.log('path : ', url.path);
     var options = {
         hostname : url.host,
         method : 'GET',
