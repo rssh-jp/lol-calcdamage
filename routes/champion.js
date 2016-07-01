@@ -42,8 +42,16 @@ router.get('/', function(req, res, next) {
     });
     task.push(function(n){
         searchChampDetail(req.query, function(err, res){
+            if(err){
+                n(err);
+                return;
+            }
+            if(res == null){
+                n(null);
+                return;
+            }
             data.champ = {skill : res.skill};
-            n(err);
+            n(null);
         });
     });
     async.waterfall(task, function(error){
@@ -74,27 +82,39 @@ var replaceSpellVars = function(tooltip, key, spell){
 var getSpellDescription = function(spell){
     console.log('spell : ', util.inspect(spell, true, null));
     var sanitized_description = spell.sanitizedDescription;
-    sanitized_description = replaceSpellVars(sanitized_description, 'a1', spell);
-    sanitized_description = replaceSpellVars(sanitized_description, 'a2', spell);
-    sanitized_description = replaceSpellVars(sanitized_description, 'a3', spell);
-    sanitized_description = replaceSpellVars(sanitized_description, 'a4', spell);
-    sanitized_description = replaceSpellVars(sanitized_description, 'a5', spell);
-    sanitized_description = sanitized_description.replace("{{ e1 }}", spell.effectBurn[1]);
-    sanitized_description = sanitized_description.replace("{{ e2 }}", spell.effectBurn[2]);
-    sanitized_description = sanitized_description.replace("{{ e3 }}", spell.effectBurn[3]);
-    sanitized_description = sanitized_description.replace("{{ e4 }}", spell.effectBurn[4]);
-    sanitized_description = sanitized_description.replace("{{ e5 }}", spell.effectBurn[5]);
     var sanitized_tooltip = spell.sanitizedTooltip;
-    sanitized_tooltip = replaceSpellVars(sanitized_tooltip, 'a1', spell);
-    sanitized_tooltip = replaceSpellVars(sanitized_tooltip, 'a2', spell);
-    sanitized_tooltip = replaceSpellVars(sanitized_tooltip, 'a3', spell);
-    sanitized_tooltip = replaceSpellVars(sanitized_tooltip, 'a4', spell);
-    sanitized_tooltip = replaceSpellVars(sanitized_tooltip, 'a5', spell);
-    sanitized_tooltip = sanitized_tooltip.replace("{{ e1 }}", spell.effectBurn[1]);
-    sanitized_tooltip = sanitized_tooltip.replace("{{ e2 }}", spell.effectBurn[2]);
-    sanitized_tooltip = sanitized_tooltip.replace("{{ e3 }}", spell.effectBurn[3]);
-    sanitized_tooltip = sanitized_tooltip.replace("{{ e4 }}", spell.effectBurn[4]);
-    sanitized_tooltip = sanitized_tooltip.replace("{{ e5 }}", spell.effectBurn[5]);
+    for(var i=0; i<10; i++){
+        var num = i + 1;
+        var a = 'a' + num;
+        var f = 'f' + num;
+        var e = 'e' + num;
+        sanitized_description = replaceSpellVars(sanitized_description, a, spell);
+        sanitized_description = replaceSpellVars(sanitized_description, f, spell);
+        sanitized_description = sanitized_description.replace("{{ " + e + " }}", spell.effectBurn[num]);
+        sanitized_tooltip = replaceSpellVars(sanitized_tooltip, a, spell);
+        sanitized_tooltip = replaceSpellVars(sanitized_tooltip, f, spell);
+        sanitized_tooltip = sanitized_tooltip.replace("{{ " + e + " }}", spell.effectBurn[num]);
+    }
+//    sanitized_description = replaceSpellVars(sanitized_description, 'a1', spell);
+//    sanitized_description = replaceSpellVars(sanitized_description, 'a2', spell);
+//    sanitized_description = replaceSpellVars(sanitized_description, 'a3', spell);
+//    sanitized_description = replaceSpellVars(sanitized_description, 'a4', spell);
+//    sanitized_description = replaceSpellVars(sanitized_description, 'a5', spell);
+//    sanitized_description = sanitized_description.replace("{{ e1 }}", spell.effectBurn[1]);
+//    sanitized_description = sanitized_description.replace("{{ e2 }}", spell.effectBurn[2]);
+//    sanitized_description = sanitized_description.replace("{{ e3 }}", spell.effectBurn[3]);
+//    sanitized_description = sanitized_description.replace("{{ e4 }}", spell.effectBurn[4]);
+//    sanitized_description = sanitized_description.replace("{{ e5 }}", spell.effectBurn[5]);
+//    sanitized_tooltip = replaceSpellVars(sanitized_tooltip, 'a1', spell);
+//    sanitized_tooltip = replaceSpellVars(sanitized_tooltip, 'a2', spell);
+//    sanitized_tooltip = replaceSpellVars(sanitized_tooltip, 'a3', spell);
+//    sanitized_tooltip = replaceSpellVars(sanitized_tooltip, 'a4', spell);
+//    sanitized_tooltip = replaceSpellVars(sanitized_tooltip, 'a5', spell);
+//    sanitized_tooltip = sanitized_tooltip.replace("{{ e1 }}", spell.effectBurn[1]);
+//    sanitized_tooltip = sanitized_tooltip.replace("{{ e2 }}", spell.effectBurn[2]);
+//    sanitized_tooltip = sanitized_tooltip.replace("{{ e3 }}", spell.effectBurn[3]);
+//    sanitized_tooltip = sanitized_tooltip.replace("{{ e4 }}", spell.effectBurn[4]);
+//    sanitized_tooltip = sanitized_tooltip.replace("{{ e5 }}", spell.effectBurn[5]);
     var str = '';
     str += sanitized_description;
     str += sanitized_tooltip;
