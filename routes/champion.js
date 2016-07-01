@@ -121,6 +121,47 @@ var getSpellDescription = function(spell){
     return str;
 };
 
+var requestSearchChampDataSpells = function(id, callback){
+    var CACHE_NAME = 'CHAMP_DATA_SPELLS';
+    var CACHE_KEY = CACHE_NAME + id;
+    var task = [];
+    // キャッシュから取得
+    task.push(function(next){
+        CacheData.get(CACHE_KEY, function(err, res){
+            if(err){
+                next(null);
+                return;
+            }
+            ret = res;
+            next(100);
+        });
+    });
+    // apiを使って取得
+    task.push(function(next){
+        RequestMan.searchChampDataSpells(id, function(err, res){
+            if(err){
+                next(err);
+                return;
+            }
+            ret = res;
+            next(null);
+        });
+    });
+    // キャッシュに登録
+    task.push(function(next){
+        CacheData.set(CACHE_KEY, ret, function(err){
+            next(err);
+        });
+    });
+    async.waterfall(task, function(error){
+        if(error){
+            if(error == 100){
+                error = null;
+            }
+        }
+        callback(error, ret);
+    });
+};
 var searchChampDetail = function(query, callback){
     var ret = {};
     var task = [];
@@ -132,7 +173,7 @@ var searchChampDetail = function(query, callback){
         next(null);
     });
     task.push(function(next){
-        RequestMan.searchChampDataSpells(query.champ_1_id, function(err, res){
+        requestSearchChampDataSpells(query.champ_1_id, function(err, res){
             ret.skill = {
                 q : getSpellDescription(res.spells[0]),
                 w : getSpellDescription(res.spells[1]),
