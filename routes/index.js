@@ -1,29 +1,10 @@
-var https = require('https');
-var http = require('http');
-
 var express = require('express');
 var router = express.Router();
 
 var async = require('async');
 
-var cache_data = require(__dirname + '/../lib/cache_data');
-
-var API_KEY = 'RGAPI-8344AE70-1B54-4223-839B-0EA9C88BC31C';
-
-var URL = {
-    CHAMPION : {
-        HOST : 'jp.api.pvp.net',
-        PATH : {
-            FREE2PLAY : '/api/lol/jp/v1.2/champion',
-        },
-    },
-    STATIC_DATA : {
-        HOST : 'global.api.pvp.net',
-        PATH : {
-            CHAMPION : '/api/lol/static-data/jp/v1.2/champion',
-        },
-    },
-};
+var CacheData = require(__dirname + '/../lib/cache_data');
+var RequestMan = require(__dirname + '/../lib/request_manager');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -37,51 +18,55 @@ router.get('/', function(req, res, next) {
         data.champ_2_lv = req.query.champ_2_lv != null ? req.query.champ_2_lv : 0;
         data.champ_1_add_ad = req.query.champ_1_add_ad != null ? req.query.champ_1_add_ad : null;
         data.champ_2_add_ad = req.query.champ_2_add_ad != null ? req.query.champ_2_add_ad : null;
+        data.select_list = [];
         n(null);
     });
+//    task.push(function(n){
+//        searchChampData(null, function(err, res){
+//            if(err){
+//                n(err);
+//                return;
+//            }
+//            var select_list = [];
+//            for(var key in res.data){
+//                var val = res.data[key];
+//                var d = {
+//                    name : key,
+//                    id : val.id,
+//                    name_jp : val.name,
+//                };
+//                select_list.push(d);
+//            }
+//            select_list.sort(function(v1, v2){
+//                return v1.id - v2.id;
+//            });
+//            data.select_list = select_list;
+//            n(null);
+//        });
+//    });
+//    task.push(function(n){
+//        searchChampDetail(req.query, function(err, res){
+//            if(res == null){
+//                n(null);
+//                return;
+//            }
+//            data.champ_stats = res;
+//            n(null);
+//        });
+//    });
     task.push(function(n){
-        searchChampData(null, function(err, res){
-            if(err){
-                n(err);
-                return;
-            }
-            var select_list = [];
-            for(var key in res.data){
-                var val = res.data[key];
-                var d = {
-                    name : key,
-                    id : val.id,
-                    name_jp : val.name,
-                };
-                select_list.push(d);
-            }
-            select_list.sort(function(v1, v2){
-                return v1.id - v2.id;
-            });
-            data.select_list = select_list;
-            n(null);
-        });
-    });
-    task.push(function(n){
-        searchChampDetail(req.query, function(err, res){
-            if(res == null){
-                n(null);
-                return;
-            }
-            data.champ_stats = res;
-            n(null);
-        });
-    });
-    task.push(function(n){
-        searchChampAllData(202, function(err){
+        RequestMan.searchChampDataAll(202, function(err, res){
+            getSpellDescription(res.spells[0]);
             n(null);
         });
     });
     async.waterfall(task, function(error){
-//        console.log('data : ', data.champ_stats);
         res.render('index', { title: 'LoL Damage Calculation', data : data });
     });
 });
+var getSpellDescription = function(spell){
+    console.log('spell : ', spell);
+};
 
 var searchChampDetail = function(query, callback){
     var ret = {};
@@ -189,127 +174,6 @@ var searchChampDetail = function(query, callback){
     });
 };
 
-var getURL = function(type_str, params){
-    if(params == null){
-        params = {};
-    }
-    var param_str = '';
-    if(params.param != null){
-        param_str = '/' + params.param;
-    }
-    var get = [];
-    for(var key in params.get){
-        var str = key + '=' + params.get[key];
-        get.push(str);
-    }
-    var get_str = get.join('&');
-    var s = type_str.split('.');
-    var url = URL[s[0]];
-    var ret = {
-        host : url.HOST,
-        path : url.PATH[s[1]] + param_str + '?' + get_str,
-    };
-    return ret;
-};
-
-var request = function(type_str, params, callback){
-    var ret = '';
-    var url = getURL(type_str, params);
-    console.log('url : ', url);
-    var options = {
-        hostname : url.host,
-        method : 'GET',
-        path : url.path,
-    };
-    var req = https.request(options, function(res){
-        res.setEncoding('utf8');
-        res.on('data', function(chunk){
-            ret += chunk;
-        });
-        res.on('end', function(){
-            callback(null, ret);
-        });
-    });
-    req.end();
-    req.on('error', function(err){
-        callback(err, null);
-    });
-};
-
-var searchF2PChamp = function (callback){
-    request('CHAMPION.FREE2PLAY', {get : {champData : 'stats', api_key : API_KEY}}, function(err, res){
-        if(err){
-            callback(err);
-            return;
-        }
-        var obj = JSON.parse(res);
-        console.log(obj);
-        callback(null);
-    });
-};
-var searchChampDataMain = function(id, callback){
-    var params = {
-        get : {
-            locale : 'ja_JP',
-            champData : 'info',
-            api_key : API_KEY,
-        },
-    };
-    if(id != null){
-        params['param'] = '1';
-    }
-    request('STATIC_DATA.CHAMPION', params, function(err, res){
-        if(err){
-            callback(err, null);
-            return;
-        }
-        var obj = JSON.parse(res);
-        callback(null, obj);
-    });
-};
-var searchChampDetailDataMain = function(id, callback){
-    var params = {
-        
-        get : {
-            locale : 'ja_JP',
-            champData : 'stats',
-            api_key : API_KEY,
-        },
-    };
-    if(id != null){
-        params['param'] = id;
-    }
-    request('STATIC_DATA.CHAMPION', params, function(err, res){
-        if(err){
-            callback(err, null);
-            return;
-        }
-        var obj = JSON.parse(res);
-        callback(null, obj);
-    });
-};
-var searchChampAllData = function(id, callback){
-    var params = {
-        
-        get : {
-            locale : 'ja_JP',
-            champData : 'all',
-            api_key : API_KEY,
-        },
-    };
-    if(id != null){
-        params['param'] = id;
-    }
-    request('STATIC_DATA.CHAMPION', params, function(err, res){
-        if(err){
-            callback(err, null);
-            return;
-        }
-        var obj = JSON.parse(res);
-        console.log('obj : ', obj);
-        callback(null, obj);
-    });
-};
 var searchChampDetailData = function(id, callback){
     var CACHE_NAME = 'CHAMP_DETAIL_DATA';
     var CACHE_KEY = CACHE_NAME + id;
@@ -317,7 +181,7 @@ var searchChampDetailData = function(id, callback){
     var task = [];
     // キャッシュから取得
     task.push(function(next){
-        cache_data.get(CACHE_KEY, function(err, res){
+        CacheData.get(CACHE_KEY, function(err, res){
             if(err){
                 next(null);
                 return;
@@ -328,7 +192,7 @@ var searchChampDetailData = function(id, callback){
     });
     // apiを使って取得
     task.push(function(next){
-        searchChampDetailDataMain(id, function(err, res){
+        RequestMan.searchChampDataStats(id, function(err, res){
             if(err){
                 next(err);
                 return;
@@ -339,7 +203,7 @@ var searchChampDetailData = function(id, callback){
     });
     // キャッシュに登録
     task.push(function(next){
-        cache_data.set(CACHE_KEY, ret, function(err){
+        CacheData.set(CACHE_KEY, ret, function(err){
             next(err);
         });
     });
@@ -359,7 +223,7 @@ var searchChampData = function (id, callback){
     var task = [];
     // キャッシュから取得
     task.push(function(next){
-        cache_data.get(CACHE_KEY, function(err, res){
+        CacheData.get(CACHE_KEY, function(err, res){
             if(err){
                 next(null);
                 return;
@@ -370,7 +234,7 @@ var searchChampData = function (id, callback){
     });
     // apiを使って取得
     task.push(function(next){
-        searchChampDataMain(id, function(err, res){
+        RequestMan.searchChampDataInfo(id, function(err, res){
             if(err){
                 next(err);
                 return;
@@ -381,7 +245,7 @@ var searchChampData = function (id, callback){
     });
     // キャッシュに登録
     task.push(function(next){
-        cache_data.set(CACHE_KEY, ret, function(err){
+        CacheData.set(CACHE_KEY, ret, function(err){
             next(err);
         });
     });

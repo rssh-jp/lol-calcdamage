@@ -1,0 +1,31 @@
+extends layout
+
+block content
+    h1= title
+    p Welcome to #{title}
+
+    form(method="GET", target="")
+        ul
+            label 自分
+            select(id="Test", name="champ_1_id")
+                -for(var i=0; i<data.select_list.length; i++){
+                    -if(data.select_list[i].id == data.champ_1_id){
+                        option(selected="true" value="#{data.select_list[i].id}") #{data.select_list[i].id} : #{data.select_list[i].name} : #{data.select_list[i].name_jp}
+                    -}else{
+                        option(value="#{data.select_list[i].id}") #{data.select_list[i].id} : #{data.select_list[i].name} : #{data.select_list[i].name_jp}
+                    -}
+                -}
+        ul
+            input(type="submit", name="champ_select", value="選択")
+
+    -if(data.champ != null){
+        label Q
+            p #{data.champ.skill.q}
+        label W
+            p #{data.champ.skill.w}
+        label E
+            p #{data.champ.skill.e}
+        label R
+            p #{data.champ.skill.r}
+    -}
+
