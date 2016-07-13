@@ -13,5 +13,18 @@
     "jade": "~1.11.0",
     "morgan": "~1.7.0",
     "serve-favicon": "~2.3.0"
-  }
+  },
+  "description": "",
+  "main": "app.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rssh-jp/lol-calcdamage.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rssh-jp/lol-calcdamage/issues"
+  },
+  "homepage": "https://github.com/rssh-jp/lol-calcdamage#readme"
 }

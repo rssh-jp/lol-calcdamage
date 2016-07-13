@@ -1,0 +1,84 @@
+label(class="label label-inverse") #{input_label_value}
+table(class="table table-striped")
+    thead(class="thead-inverse")
+        tr
+            th 項目
+            th LV1
+            th PerLv
+            th
+            th 現在
+    tbody
+        tr
+            td HP
+            td #{champ.hp}
+            td #{champ.hpperlevel}
+            td 
+            td #{champ_detail.hp}
+        tr
+            td HP REGEN
+            td #{champ.hpregen}
+            td #{champ.hpregenperlevel}
+            td 
+            td 
+        tr
+            td MP
+            td #{champ.mp}
+            td #{champ.mpperlevel}
+            td 
+            td #{champ_detail.mp}
+        tr
+            td MP REGEN
+            td #{champ.mpregen}
+            td #{champ.mpregenperlevel}
+            td 
+            td 
+        tr
+            td AD
+            td #{champ.attackdamage}
+            td #{champ.attackdamageperlevel}
+            td 
+            td #{champ_detail.attackdamage}
+        tr
+            td AR
+            td #{champ.armor}
+            td #{champ.armorperlevel}
+            td 
+            td #{champ_detail.armor}
+        tr
+            td MR
+            td #{champ.spellblock}
+            td #{champ.spellblockperlevel}
+            td 
+            td #{champ_detail.spellblock}
+        tr
+            td AS
+            td #{champ.attackspeedoffset + 1}
+            td #{champ.attackspeedperlevel} %
+            td 
+            td #{champ_detail.attackspeed}
+        tr
+            td CRITICAL
+            td #{champ.crit}
+            td #{champ.critperlevel}
+            td
+            td #{champ_detail.crit}
+        tr
+            td MS
+            td #{champ.movespeed}
+            td  
+            td 
+            td 
+label(class="label label-inverse") #{input_label_value}が与えるダメージ
+table(class="table table-striped")
+    thead(class="thead-inverse")
+        tr
+            th 項目
+            th ダメージ
+    tbody    
+        tr
+            td 物理ダメージ
+            td #{champ_damage.ad_damage}
+        tr
+            td 魔法ダメージ
+            td #{champ_damage.ad_damage}
+

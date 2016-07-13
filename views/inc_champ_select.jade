@@ -1,0 +1,24 @@
+label(class="label label-inverse") #{input_label_value}
+select(id="Test", name="#{input_select_id_name}")
+    -for(var i=0; i<select_list.length; i++){
+        -if(select_list[i].id == champ_id){
+            option(selected="true" value="#{select_list[i].id}") #{select_list[i].id} : #{select_list[i].name} : #{select_list[i].name_jp}
+        -}else{
+            option(value="#{select_list[i].id}") #{select_list[i].id} : #{select_list[i].name} : #{select_list[i].name_jp}
+        -}
+    -}
+label(class="label label-inverse") レベル
+select(id="Test", name="#{input_select_lv_name}")
+    -for(var i=0; i<18; i++){
+        -if(i + 1 == champ_lv){
+            option(selected="true" value="#{i + 1}") #{i + 1}
+        -}else{
+            option(value="#{i + 1}") #{i + 1}
+        -}
+    -}
+label(class="label label-inverse") 追加AD
+-if(champ_add_ad){
+input(type="text", name="#{input_add_ad_name}", size="5", value="#{champ_add_ad}", class="input")
+-}else{
+input(type="text", name="#{input_add_ad_name}", size="5" value="0", class="input")
+-}

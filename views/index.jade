@@ -1,212 +1,49 @@
-extends layout
-
+div#bootstrap.
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css" media="screen, projection" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>　
 block content
+
     h1= title
     p Welcome to #{title}
 
-    a(href="/champion", target="") champion
+    a(href="/champion", target="", class="a") champion
 
-    form(method="GET", target="")
-        ul
-            label 自分
-            select(id="Test", name="champ_1_id")
-                -for(var i=0; i<data.select_list.length; i++){
-                    -if(data.select_list[i].id == data.champ_1_id){
-                        option(selected="true" value="#{data.select_list[i].id}") #{data.select_list[i].id} : #{data.select_list[i].name} : #{data.select_list[i].name_jp}
-                    -}else{
-                        option(value="#{data.select_list[i].id}") #{data.select_list[i].id} : #{data.select_list[i].name} : #{data.select_list[i].name_jp}
-                    -}
-                -}
-            label レベル
-            select(id="Test", name="champ_1_lv")
-                -for(var i=0; i<18; i++){
-                    -if(i + 1 == data.champ_1_lv){
-                        option(selected="true" value="#{i + 1}") #{i + 1}
-                    -}else{
-                        option(value="#{i + 1}") #{i + 1}
-                    -}
-                -}
-            label 追加AD
-            -if(data.champ_1_add_ad){
-            input(type="text", name="champ_1_add_ad", size="5", value="#{data.champ_1_add_ad}")
-            -}else{
-            input(type="text", name="champ_1_add_ad", size="5" value="0")
-            -}
-        ul
-            label 相手
-            select(id="Test", name="champ_2_id")
-                -for(var i=0; i<data.select_list.length; i++){
-                    -if(data.select_list[i].id == data.champ_2_id){
-                        option(selected="true" value="#{data.select_list[i].id}") #{data.select_list[i].id} : #{data.select_list[i].name} : #{data.select_list[i].name_jp}
-                    -}else{
-                        option(value="#{data.select_list[i].id}") #{data.select_list[i].id} : #{data.select_list[i].name} : #{data.select_list[i].name_jp}
-                    -}
-                -}
-            label レベル
-            select(id="Test", name="champ_2_lv")
-                -for(var i=0; i<18; i++){
-                    -if(i + 1 == data.champ_2_lv){
-                        option(selected="true" value="#{i + 1}") #{i + 1}
-                    -}else{
-                        option(value="#{i + 1}") #{i + 1}
-                    -}
-                -}
-            label 追加AD
-            -if(data.champ_2_add_ad){
-            input(type="text", name="champ_2_add_ad", size="5", value="#{data.champ_2_add_ad}")
-            -}else{
-            input(type="text", name="champ_2_add_ad", size="5" value="0")
-            -}
-        ul
-            input(type="submit", name="champ_select", value="選択")
+    form(method="GET", target="", class="form")
+        div(class="form-group")
+            - var select_list = data.select_list;
+            - var champ_id = data.champ_1_id;
+            - var champ_lv = data.champ_1_lv;
+            - var champ_add_ad = data.champ_1_add_ad;
+            - var input_label_value = '自分'
+            - var input_select_id_name = 'champ_1_id';
+            - var input_select_lv_name = 'champ_1_lv';
+            - var input_add_ad_name = 'champ_1_add_ad';
+            include inc_champ_select.jade
+        div(class="form-group")
+            - var select_list = data.select_list;
+            - var champ_id = data.champ_2_id;
+            - var champ_lv = data.champ_2_lv;
+            - var champ_add_ad = data.champ_2_add_ad;
+            - var input_label_value = '相手'
+            - var input_select_id_name = 'champ_2_id';
+            - var input_select_lv_name = 'champ_2_lv';
+            - var input_add_ad_name = 'champ_2_add_ad';
+            include inc_champ_select.jade
+        div(class="form-group")
+            input(type="submit", name="champ_select", value="選択", class="btn btn-success")
 
     -if(data.champ_stats != null){
-        div(style="float:left")
+        div(class="pull-left")
             - var champ = data.champ_stats.champ_1
             - var champ_detail = data.champ_stats.champ_1_detail
             - var champ_damage = data.champ_stats.champ_1_damage
-            label 自分
-            table(border="1")
-                tr
-                    td
-                    td LV1
-                    td PerLv
-                    td
-                    td 現在
-                tr
-                    td HP
-                    td #{champ.hp}
-                    td #{champ.hpperlevel}
-                    td
-                    td #{champ_detail.hp}
-                tr
-                    td HP REGEN
-                    td #{champ.hpregen}
-                    td #{champ.hpregenperlevel}
-                    td
-                tr
-                    td MP
-                    td #{champ.mp}
-                    td #{champ.mpperlevel}
-                    td
-                    td #{champ_detail.mp}
-                tr
-                    td MP REGEN
-                    td #{champ.mpregen}
-                    td #{champ.mpregenperlevel}
-                    td
-                tr
-                    td AD
-                    td #{champ.attackdamage}
-                    td #{champ.attackdamageperlevel}
-                    td
-                    td #{champ_detail.attackdamage}
-                tr
-                    td AR
-                    td #{champ.armor}
-                    td #{champ.armorperlevel}
-                    td
-                    td #{champ_detail.armor}
-                tr
-                    td MR
-                    td #{champ.spellblock}
-                    td #{champ.spellblockperlevel}
-                    td
-                    td #{champ_detail.spellblock}
-                tr
-                    td AS
-                    td #{champ.attackspeedoffset + 1}
-                    td #{champ.attackspeedperlevel} %
-                    td
-                    td #{champ_detail.attackspeed}
-                tr
-                    td CRITICAL
-                    td #{champ.crit}
-                    td #{champ.critperlevel}
-                    td
-                    td #{champ_detail.crit}
-                tr
-                    td MS
-                    td #{champ.movespeed}
-                    td 
-                    td
-            label 自分が与えるダメージ
-            table(border="1")
-                tr
-                    td ad damage
-                    td #{champ_damage.ad_damage}
-        div(style="float:left")
+            - var input_label_value = '自分'
+            include inc_champ_stats.jade
+        div(class="pull-left")
             - var champ = data.champ_stats.champ_2
             - var champ_detail = data.champ_stats.champ_2_detail
             - var champ_damage = data.champ_stats.champ_2_damage
-            label 相手
-            table(border="1")
-                tr
-                    td
-                    td LV1
-                    td PerLv
-                    td
-                    td 現在
-                tr
-                    td HP
-                    td #{champ.hp}
-                    td #{champ.hpperlevel}
-                    td
-                    td #{champ_detail.hp}
-                tr
-                    td HP REGEN
-                    td #{champ.hpregen}
-                    td #{champ.hpregenperlevel}
-                    td
-                tr
-                    td MP
-                    td #{champ.mp}
-                    td #{champ.mpperlevel}
-                    td
-                    td #{champ_detail.mp}
-                tr
-                    td MP REGEN
-                    td #{champ.mpregen}
-                    td #{champ.mpregenperlevel}
-                    td
-                tr
-                    td AD
-                    td #{champ.attackdamage}
-                    td #{champ.attackdamageperlevel}
-                    td
-                    td #{champ_detail.attackdamage}
-                tr
-                    td AR
-                    td #{champ.armor}
-                    td #{champ.armorperlevel}
-                    td
-                    td #{champ_detail.armor}
-                tr
-                    td MR
-                    td #{champ.spellblock}
-                    td #{champ.spellblockperlevel}
-                    td
-                    td #{champ_detail.spellblock}
-                tr
-                    td AS
-                    td #{champ.attackspeedoffset + 1}
-                    td #{champ.attackspeedperlevel} %
-                    td
-                    td #{champ_detail.attackspeed}
-                tr
-                    td CRITICAL
-                    td #{champ.crit}
-                    td #{champ.critperlevel}
-                    td
-                    td #{champ_detail.crit}
-                tr
-                    td MS
-                    td #{champ.movespeed}
-                    td 
-                    td
-            label 相手から受けるダメージ
-            table(border="1")
-                tr
-                    td ad damage
-                    td #{champ_damage.ad_damage}
+            - var input_label_value = '相手'
+            include inc_champ_stats.jade
     -}
