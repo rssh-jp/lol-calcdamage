@@ -1,8 +1,16 @@
-block content
-    h1= title
-    p Welcome to #{title}
-    div
-        a(href="/", target="") calc
-    div
-        input(type="text", name="summoner_name", class="input")
+include layout.jade
+body
+    div(class="container")
+        div(class="row")
+            div(class="span10")
+                h1= title
+                p Welcome to #{title}
+                div(class="container")
+                    div(class="row")
+                        div(class="span10")
+                            div(class="form-group")
+                                label サモナー名
+                                input(type="text", name="summoner_name", class="form-control")
+                            div(class="form-group")
+                                input(type="submit", name="champ_select", value="選択", class="btn btn-success")
 

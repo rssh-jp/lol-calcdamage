@@ -1,7 +1,22 @@
-doctype html
-html
-  head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
-  body
-    block content
+head
+    div#bootstrap.
+        <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css" media="screen, projection" />
+        <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
+        <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>　
+    div(class="navbar navbar-inverse navbar-fixed-top")
+        div(class="navbar-inner")
+            div(class="container")
+                button(type="button", class="btn btn-navbar", data-toggle="collapse", data-target=".nav-collapse")
+                    span(class="icon-bar")
+                    span(class="icon-bar")
+                    span(class="icon-bar")
+                a(class="brand" href="/") Lol damage calculator
+                div(class="nav-collapse collapse")
+                    ul(class="nav")
+                        li
+                            a(href="/") Home
+                        li
+                            a(href="/summoner") summoner
+                        li
+                            a(href="/champion") champion
+    

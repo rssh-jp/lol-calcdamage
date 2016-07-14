@@ -28,9 +28,21 @@ router.get('/', function(req, res, next) {
 });
 
 var search = function(callback){
-    RequestMan.searchSummoner('roughsea', function(err, res){
-        console.log('res : ', res);
-        callback(null);
+    var task = [];
+    task.push(function(next){
+        RequestMan.searchSummonerByName('roughsea', function(err, res){
+            console.log('res : ', res);
+            next(null);
+        });
+    });
+    task.push(function(next){
+        RequestMan.searchSummonerDataMasteries('6300399', function(err, res){
+            console.log('res : ', util.inspect(res['6300399'].pages, true, null));
+            next(null);
+        });
+    });
+    async.waterfall(task, function(error){
+        callback(error);
     });
 };
 
