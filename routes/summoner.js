@@ -7,6 +7,7 @@ var async = require('async');
 
 var CacheData = require(__dirname + '/../lib/cache_data');
 var RequestMan = require(__dirname + '/../lib/request_manager');
+var SummonerMan = require(__dirname + '/../lib/summoner_manager');
 
 router.get('/', function(req, res, next) {
     var data = {};
@@ -23,6 +24,7 @@ router.get('/', function(req, res, next) {
         n(null);
     });
     async.waterfall(task, function(error){
+        console.log('error : ', error);
         res.render('summoner', { title: 'LoL Summoner search', data : data });
     });
 });
@@ -30,14 +32,8 @@ router.get('/', function(req, res, next) {
 var search = function(callback){
     var task = [];
     task.push(function(next){
-        RequestMan.searchSummonerByName('roughsea', function(err, res){
+        SummonerMan.searchSummoner('roughsea', function(err, res){
             console.log('res : ', res);
-            next(null);
-        });
-    });
-    task.push(function(next){
-        RequestMan.searchSummonerDataMasteries('6300399', function(err, res){
-            console.log('res : ', util.inspect(res['6300399'].pages, true, null));
             next(null);
         });
     });
