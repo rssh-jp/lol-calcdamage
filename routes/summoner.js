@@ -33,7 +33,7 @@ var search = function(callback){
     var task = [];
     task.push(function(next){
         SummonerMan.searchSummoner('roughsea', function(err, res){
-            console.log('res : ', res);
+            console.log('res : ', util.inspect(res, true, null));
             next(null);
         });
     });
