@@ -10,14 +10,15 @@
 
 | 項目 | 詳細 |
 |------|------|
-| フレームワーク | Next.js 14 (App Router) |
-| 言語 | TypeScript 5 |
-| スタイリング | Tailwind CSS 3 |
+| フレームワーク | Next.js 16 (App Router) |
+| 言語 | TypeScript 6 |
+| スタイリング | Tailwind CSS 4 |
 | 外部 API | Riot Games API / Data Dragon / Meraki Analytics |
 
 ## ディレクトリ構成
 
 ```
+next.config.ts            # Next.js 設定（TypeScript ESM 形式）
 src/
   app/                    # Next.js App Router ページ & API Routes
     page.tsx              # トップページ（ダメージ計算 UI）
@@ -34,7 +35,7 @@ src/
     riot-api.ts           # Riot API / Data Dragon クライアント（サーバーサイド）
     damage.ts             # ダメージ計算ロジック（純粋関数）
   styles/
-    globals.css
+    globals.css           # Tailwind v4 (@import "tailwindcss" + @theme)
 ```
 
 ## 主要モジュール
@@ -94,3 +95,31 @@ RIOT_REGION=jp1   # デフォルト: jp1
 - コンポーネントは `src/components/` に配置し、ページ固有でない限り再利用可能にする
 - Tailwind CSS のユーティリティクラスを使用し、カスタム CSS は最小限にする
 - 型は `src/lib/types.ts` で一元管理する
+
+## バージョン固有の注意事項
+
+### Next.js 15+ の動的ルートパラメータ
+
+Route Handler の `params` は `Promise` になっている。必ず `await` すること。
+
+```ts
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  // ...
+}
+```
+
+### Tailwind CSS v4
+
+- `tailwind.config.ts` は不要（削除済み）
+- `@tailwind base/components/utilities` の代わりに `@import "tailwindcss"` を使用
+- カスタムテーマは `globals.css` の `@theme` ブロックで定義
+- PostCSS プラグインは `tailwindcss` ではなく `@tailwindcss/postcss` を使用
+
+### Next.js 設定ファイル
+
+- `next.config.ts`（TypeScript ESM）を使用。`next.config.js` は削除済み
+- 型は `import type { NextConfig } from 'next'` で付ける

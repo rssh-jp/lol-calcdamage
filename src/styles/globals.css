@@ -1,6 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-lol-gold: #C89B3C;
+  --color-lol-dark: #0A1428;
+  --color-lol-blue: #0BC4E3;
+}
 
 :root {
   --lol-gold: #C89B3C;
